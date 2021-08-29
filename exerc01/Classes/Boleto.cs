@@ -10,44 +10,37 @@ namespace exerc01.Classes
     {
         public string Cedente { get; set; }
         public string Descricao { get; set; }
-        public double Valor { get; set; }
-        public double ValorMultaAts { get; set; }
-        public double TaxaJurosAD { get; set; }
-        public DateTime DtEmissao { get; set; }
+        public double ValorInicial { get; private set; }
+        public DateTime DtEmissao { get; private set; }
         public DateTime DtVencimento { get; set; }
-        public DateTime DtPagamento { get; set; }
-        public double MultaPorAtraso{ get; set; }
-        public Boleto()
-        {
+        public DateTime DtPagamento { get; private set; }
 
-        }
+        private readonly double ValorMultaAts = 100.0;
+        private readonly double TxJurosAd = 0.01;
 
-        public Boleto(string cedente, string descricao, 
-            double valor, double valorMultaAts, double taxaJurosAD, 
-            DateTime dtPagamento, double multaPorAtraso)
+        public Boleto(string cedente, string descricao,
+            double valorInicial)
         {
             Cedente = cedente;
             Descricao = descricao;
-            Valor = valor;
-            ValorMultaAts = valorMultaAts;
-            MultaPorAtraso = multaPorAtraso;
-            TaxaJurosAD = taxaJurosAD;
+            ValorInicial = valorInicial;
             DtEmissao = DateTime.Now.Date;
-            DtVencimento = DtEmissao.AddDays(7); 
-            DtPagamento = dtPagamento;
+            DtVencimento = DtEmissao.AddDays(7);
         }
 
-        public double Calcular()
+        public double Calcular(DateTime dtPagamento)
         {
-            double ValorPagFinal = Valor;
+            DtPagamento = dtPagamento;
+            double ValorPagFinal = ValorInicial;
 
-            if ( DtPagamento > DtVencimento)
+            if (DtPagamento > DtVencimento)
             {
                 TimeSpan DiasAtraso = DtPagamento - DtVencimento;
-                double ValorJuros = (Valor * TaxaJurosAD / 100) * DiasAtraso.Days;
-                ValorPagFinal = ValorJuros + ValorPagFinal + 100;
+                // Formula juros compostos Montante = Capital * ( 1 + i)^n
+                double JurosCompostos = ValorPagFinal * Math.Pow((1 + TxJurosAd), DiasAtraso.Days); 
+                ValorPagFinal = JurosCompostos + ValorMultaAts;
             }
-            
+
             return ValorPagFinal;
         }
     }
